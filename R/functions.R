@@ -192,3 +192,133 @@ plotmeanshack <- function (formula, data = NULL, subset, na.action, bars = TRUE,
 
 
 
+plot.deldir <- function (x, add = FALSE, wlines = c("both", "triang", "tess"), 
+    wpoints = c("both", "real", "dummy", "none"), number = FALSE, 
+    cex = 1, nex = 1, col = NULL, lty = NULL, pch = NULL, xlim = NULL, 
+    ylim = NULL, xlab = "x", ylab = "y", showrect = FALSE, fill = NULL, ...) 
+{
+    if (!inherits(x, "deldir")) 
+        stop("Argument \"x\" is not of class deldir.\n")
+    wlines <- match.arg(wlines)
+    wpoints <- match.arg(wpoints)
+    col <- if (is.null(col)) 
+        c(1, 1, 1, 1, 1)
+    else rep(col, length.out = 5)
+    lty <- if (is.null(lty)) 
+        1:2
+    else rep(lty, length.out = 2)
+    pch <- if (is.null(pch)) 
+        1:2
+    else rep(pch, length.out = 2)
+    plot.del <- switch(wlines, both = TRUE, triang = TRUE, tess = FALSE) # good example of how to use switch
+    plot.dir <- switch(wlines, both = TRUE, triang = FALSE, tess = TRUE)
+    plot.rl <- switch(wpoints, both = TRUE, real = TRUE, dummy = FALSE, 
+        none = FALSE)
+    plot.dum <- switch(wpoints, both = TRUE, real = FALSE, dummy = TRUE, 
+        none = FALSE)
+    delsgs <- x$delsgs
+    dirsgs <- x$dirsgs
+    n <- x$n.data
+    rw <- x$rw
+    if (plot.del) {
+        x1 <- delsgs[, 1]
+        y1 <- delsgs[, 2]
+        x2 <- delsgs[, 3]
+        y2 <- delsgs[, 4]
+    }
+    if (plot.dir) {
+        u1 <- dirsgs[, 1]
+        v1 <- dirsgs[, 2]
+        u2 <- dirsgs[, 3]
+        v2 <- dirsgs[, 4]
+    }
+    X <- x$summary[, "x"]
+    Y <- x$summary[, "y"]
+    if (!add) {
+        pty.save <- par()$pty
+        on.exit(par(pty = pty.save))
+        par(pty = "s")
+        if (is.null(xlim)) 
+            xlim <- rw[1:2]
+        if (is.null(ylim)) 
+            ylim <- rw[3:4]
+        plot(0, 0, type = "n", xlim = xlim, ylim = ylim, xlab = xlab, 
+            ylab = ylab, axes = FALSE, ...)
+        axis(side = 1)
+        axis(side = 2)
+    }
+    if (plot.del) 
+        segments(x1, y1, x2, y2, col = col[1], lty = lty[1], 
+            ...)
+    if (plot.dir) {
+		# handle all polygons and colors in one single polygon() command.
+		# if fill is NULL, set with white
+		
+		umin <- min(c(u1, u2))
+		vmin <- min(c(v1, v2))
+		umax <- max(c(u1, u2))
+		vmax <- max(c(v1, v2))
+		
+		if (is.null(fill)) fill <- rgb(1,1,1) # use rgb format
+		polygons <- matrix(nrow=0, ncol=2)
+		for(i in 1:n) {
+			inds <- which(dirsgs$ind1 == i) # get all tesselation segments matching a single point
+			inds <- unique(c(inds, which(dirsgs$ind2 == i)))
+			tmppts <- rbind(cbind(u1[inds], v1[inds]), cbind(u2[inds], v2[inds]))
+			# manage the "corner" case : if a min and a max are attained by points in tmppts on both dimension, 
+			# add the "corner" to the convex hull.
+			if (any(tmppts[,1] == umin) && any(tmppts[,2] == vmin)) tmppts <- rbind(tmppts, c(umin, vmin))
+			if (any(tmppts[,1] == umin) && any(tmppts[,2] == vmax)) tmppts <- rbind(tmppts, c(umin, vmax))
+			if (any(tmppts[,1] == umax) && any(tmppts[,2] == vmin)) tmppts <- rbind(tmppts, c(umax, vmin))
+			if (any(tmppts[,1] == umax) && any(tmppts[,2] == vmax)) tmppts <- rbind(tmppts, c(umax, vmax))
+			 
+        	inds <- chull(tmppts) # convex hull in clockwise order
+        	tmppts <- tmppts[inds,]	
+			polygons <- rbind(polygons, tmppts, rep(NA,2)) # close each polygon with NA values
+		} # warning : for does not define a lexical scope. 
+		polygon(polygons[,1], polygons[,2], col=fill)
+	}
+    if (plot.rl) {
+        x.real <- X[1:n]
+        y.real <- Y[1:n]
+        points(x.real, y.real, pch = pch[1], col = col[3], cex = cex, 
+            ...)
+    }
+    if (plot.dum) {
+        x.dumm <- X[-(1:n)]
+        y.dumm <- Y[-(1:n)]
+        points(x.dumm, y.dumm, pch = pch[2], col = col[4], cex = cex, 
+            ...)
+    }
+    if (number) {
+        xoff <- 0.02 * diff(range(X))
+        yoff <- 0.02 * diff(range(Y))
+        text(X + xoff, Y + yoff, 1:length(X), cex = nex, col = col[5], 
+            ...)
+    }
+    if (showrect) 
+        do.call(rect, as.list(x$rw)[c(1, 3, 2, 4)])
+    invisible()
+}
+
+
+upper <- function(d) {
+	if (d < 2) {
+		stop("d should at least equal 2")
+	}
+	res <- matrix(nrow=0, ncol=2)
+	for (i in 1:(d-1)) {
+		cur <- seq(i+1, d)
+		res <- rbind(res, cbind(rep(i, length(cur)), cur))
+	}
+	return(res)
+}	
+
+	
+	
+	
+
+
+
+
+
