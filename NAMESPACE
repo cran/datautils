@@ -1,2 +1,5 @@
 useDynLib(datautils)
 exportPattern(".*")
+importFrom("gtools", "invalid")
+importFrom("gplots", "plotCI")
+importFrom("deldir", "deldir")
