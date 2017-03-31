@@ -1,7 +1,7 @@
 // Copyright (C) 2012 Pierrick Bruneau
 
 #include "utils.h"
-		
+
 SEXP getTimestamp() {
 	// get current timestamp in format (sec, microsec)
 	struct timeval *tv;

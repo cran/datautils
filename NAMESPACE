@@ -1,5 +1,10 @@
-useDynLib(datautils)
-exportPattern(".*")
+useDynLib(datautils, .registration=TRUE, .fixes=".")
+exportPattern("[^.].*")
 importFrom("gtools", "invalid")
 importFrom("gplots", "plotCI")
 importFrom("deldir", "deldir")
+importFrom("grDevices", "chull", "rgb")
+importFrom("graphics", "axis", "lines", "par", "plot", "points",
+          "polygon", "rect", "segments", "text")
+importFrom("stats", "na.omit", "qnorm", "qt", "var")
+S3method(plot, deldir, .plot.deldir.datautils)

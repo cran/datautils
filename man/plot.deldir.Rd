@@ -1,7 +1,7 @@
-\name{plot.deldir}
+\name{.plot.deldir.datautils}
 \alias{plot.deldir}
 \title{
-plot.deldir
+.plot.deldir.datautils
 }
 \description{
 overrides the original plot.deldir function, to support background colors when printing the tesselation.

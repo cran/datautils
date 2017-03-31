@@ -1,9 +1,9 @@
 getTimestamp <- function() {
-	.Call("getTimestamp", package="datautils")
+	.Call("getTimestamp")
 }
 
 getElapsed <- function(stamp) {
-	.Call("getElapsed", stamp, package="datautils")
+	.Call("getElapsed", stamp)
 }
 
 
@@ -192,7 +192,7 @@ plotmeanshack <- function (formula, data = NULL, subset, na.action, bars = TRUE,
 
 
 
-plot.deldir <- function (x, add = FALSE, wlines = c("both", "triang", "tess"), 
+.plot.deldir.datautils <- function (x, add = FALSE, wlines = c("both", "triang", "tess"), 
     wpoints = c("both", "real", "dummy", "none"), number = FALSE, 
     cex = 1, nex = 1, col = NULL, lty = NULL, pch = NULL, xlim = NULL, 
     ylim = NULL, xlab = "x", ylab = "y", showrect = FALSE, fill = NULL, ...) 
